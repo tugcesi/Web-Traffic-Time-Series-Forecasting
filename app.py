@@ -23,7 +23,14 @@ SECONDARY_COLOR = "#20B2AA"
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("webtraffic.csv")
+    try:
+        df = pd.read_csv("webtraffic.csv")
+    except FileNotFoundError:
+        st.error(
+            "❌ `webtraffic.csv` dosyası bulunamadı. "
+            "Lütfen dosyanın uygulama ile aynı dizinde olduğundan emin olun."
+        )
+        st.stop()
     return df
 
 
@@ -225,9 +232,13 @@ elif page == "🤖 Tahmin":
             step=1,
         )
 
+        apply_inverse = st.checkbox(
+            "Inverse transform uygula (model normalize edilmiş veri üzerinde eğitildiyse işaretleyin)",
+            value=False,
+        )
+
         if st.button("Tahmin Et", type="primary"):
             with st.spinner("Tahmin yapılıyor..."):
-                # Scaler'ı veri üzerinde yeniden fit et
                 scaler = MinMaxScaler(feature_range=(0, 1))
                 scaler.fit(df[["Sessions"]])
 
@@ -235,8 +246,7 @@ elif page == "🤖 Tahmin":
                     forecast_result = model.forecast(steps=steps)
                     forecast_values = np.array(forecast_result).reshape(-1, 1)
 
-                    # Eğer tahmin değerleri 0-1 aralığındaysa inverse_transform uygula
-                    if forecast_values.min() >= 0 and forecast_values.max() <= 1:
+                    if apply_inverse:
                         predicted_sessions = scaler.inverse_transform(forecast_values).flatten()
                     else:
                         predicted_sessions = forecast_values.flatten()
