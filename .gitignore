@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.ipynb_checkpoints/
+
+# Model files (too large for GitHub)
+*.pkl
+*.h5
+*.joblib
+
+# Environment
+.env
+venv/
+.venv/
